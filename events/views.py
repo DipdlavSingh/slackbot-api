@@ -28,7 +28,7 @@ class Events(APIView):
             print(event_message)
 
             # ignore bot's own message
-            if event_message.get('subtype') == 'bot_message':
+            if event_message.get('bot_id', None):
                 return Response(status=status.HTTP_200_OK)
 
             # process user's message
