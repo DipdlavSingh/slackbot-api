@@ -23,13 +23,14 @@ class Events(APIView):
         #     return Response(data=slack_message,
         #                     status=status.HTTP_200_OK)
 
+        # ignore bot's own message
+        if slack_message.get('bot_id', None):
+            return Response(status=status.HTTP_200_OK)
+
         if 'event' in slack_message:
             event_message = slack_message.get('event')
             print(event_message)
 
-            # ignore bot's own message
-            if event_message.get('bot_id', None):
-                return Response(status=status.HTTP_200_OK)
 
             # process user's message
             user = event_message.get('user')
