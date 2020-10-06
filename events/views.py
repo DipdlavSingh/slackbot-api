@@ -34,7 +34,7 @@ class Events(APIView):
             user = event_message.get('user')
             text = event_message.get('text')
             channel = event_message.get('channel')
-            bot_text = 'Hi <@{}> :wave:'.format(user)
+            bot_text = 'Hello <@{}> :wave:'.format(user)
             if 'hi' in text.lower():
                 response = Client.chat_postMessage(channel=channel,text=bot_text)
                 assert response["message"]["text"] == "Hello world!"
