@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+# import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +27,7 @@ SECRET_KEY = '5wfkye!%v3_@n_oweago3d-6+1=j2x)y*#7kbok@d9e4zpv)%0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://django-slack-bot.herokuapp.com/']
 
 
 # Application definition
@@ -37,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'events',
 ]
 
 MIDDLEWARE = [
@@ -118,3 +122,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+SLACK_CLIENT_ID = os.environ.get('SLACK_CLIENT_ID', None)
+SLACK_CLIENT_SECRET = os.environ.get('SLACK_CLIENT_SECRET', None)
+SLACK_VERIFICATION_TOKEN = os.environ.get('SLACK_VERIFICATION_TOKEN', None)
+SLACK_BOT_USER_TOKEN = os.environ.get('SLACK_BOT_USER_TOKEN', None)
+
+# Activate Django-Heroku.
+# django_heroku.settings(locals())
