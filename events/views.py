@@ -25,6 +25,7 @@ class Events(APIView):
 
         if 'event' in slack_message:
             event_message = slack_message.get('event')
+            print(event_message)
 
             # ignore bot's own message
             if event_message.get('subtype') == 'bot_message':
