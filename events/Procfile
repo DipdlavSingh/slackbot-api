@@ -1,0 +1,1 @@
+web: gunicorn slackbot_api.wsgi
