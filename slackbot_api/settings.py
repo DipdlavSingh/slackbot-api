@@ -27,7 +27,7 @@ SECRET_KEY = '5wfkye!%v3_@n_oweago3d-6+1=j2x)y*#7kbok@d9e4zpv)%0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://django-slack-bot.herokuapp.com/','localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['django-slack-bot.herokuapp.com/','localhost', '127.0.0.1']
 
 
 # Application definition
