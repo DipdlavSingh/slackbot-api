@@ -74,4 +74,4 @@ class Login(APIView):
             client_secret=SLACK_CLIENT_SECRET,
             code=code
             )
-        return Response(response)
+        return Response(response.__dict__)
