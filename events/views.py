@@ -66,7 +66,7 @@ class Message(APIView):
         return Response(status=status.HTTP_200_OK)
 
 class Login(APIView):
-    def post(self, request):
+    def get(self, request):
         code = request.query_params.get('code')
         client = WebClient()
         response = client.oauth_v2_access(
