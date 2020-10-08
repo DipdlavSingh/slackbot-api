@@ -1,3 +1,4 @@
+from os import stat
 from django.shortcuts import render
 
 # Create your views here.
@@ -6,6 +7,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
 from slack import WebClient
+
+SLACK_CLIENT_ID = getattr(settings, 'SLACK_CLIENT_ID', None)
+SLACK_CLIENT_SECRET = getattr(settings, 'SLACK_CLIENT_SECRET', None)
 
 SLACK_VERIFICATION_TOKEN = getattr(settings, 'SLACK_VERIFICATION_TOKEN', None)
 SLACK_BOT_USER_TOKEN = getattr(settings,'SLACK_BOT_USER_TOKEN', None)                                     #
@@ -47,3 +51,27 @@ class Events(APIView):
                 return Response(status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_200_OK)
+
+class Channels(APIView):
+    def get(self, request):
+        # print(Client.conversations_list(types="public_channel"))
+        return Response(Client.conversations_list(types="public_channel")['channels'])
+
+class Message(APIView):
+    def post(self, request):
+        channel = request.data.get('channel')
+        message = request.data.get('message')
+        response = Client.chat_postMessage(channel=channel, text=message, as_user=True)
+        assert response["message"]["text"] == message
+        return Response(status=status.HTTP_200_OK)
+
+class Login(APIView):
+    def post(self, request):
+        code = request.query_params.get('code')
+        client = WebClient()
+        response = client.oauth_v2_access(
+            client_id=SLACK_CLIENT_ID,
+            client_secret=SLACK_CLIENT_SECRET,
+            code=code
+            )
+        return Response(response)

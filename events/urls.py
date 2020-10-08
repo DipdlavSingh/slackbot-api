@@ -3,4 +3,7 @@ from .views import *
 
 urlpatterns = [
     path('', Events.as_view()),
+    path('channels/', Channels.as_view()),
+    path('message/', Message.as_view()),
+    path('login/', Login.as_view()),
 ]
