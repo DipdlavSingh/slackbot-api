@@ -82,4 +82,5 @@ class Login(APIView):
             "incoming_webhook": response["incoming_webhook"],
             "bot":response["bot"]
         }
+        print(response)
         return Response(response_data)
