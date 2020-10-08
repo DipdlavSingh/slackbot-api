@@ -74,4 +74,12 @@ class Login(APIView):
             client_secret=SLACK_CLIENT_SECRET,
             code=code
             )
-        return Response(response.__dict__)
+        response_data = {
+            "access_token": response["access_token"],
+            "scope": response["scope"],
+            "team_name": response["team_name"],
+            "team_id": response["team_id"],
+            "incoming_webhook": response["incoming_webhook"],
+            "bot":response["bot"]
+        }
+        return Response(response_data)
