@@ -59,9 +59,16 @@ class Channels(APIView):
 
 class Message(APIView):
     def post(self, request):
-        channel = request.data.get('channel')
-        message = request.data.get('message')
-        response = Client.chat_postMessage(channel=channel, text=message, as_user=True)
+        channel = request.data.get('channel', 'general')
+        message = request.data.get('message', '')
+        user_token = request.data.get('user_token', None)
+        as_user = False
+        if user_token:
+            Client = WebClient(user_token)
+            as_user = True
+        else:
+            Client = WebClient(SLACK_BOT_USER_TOKEN)
+        response = Client.chat_postMessage(channel=channel, text=message, as_user=as_user)
         assert response["message"]["text"] == message
         return Response(status=status.HTTP_200_OK)
 
@@ -75,12 +82,10 @@ class Login(APIView):
             code=code
             )
         response_data = {
-            "access_token": response["access_token"],
-            "scope": response["scope"],
-            "team_name": response["team_name"],
-            "team_id": response["team_id"],
-            "incoming_webhook": response["incoming_webhook"],
-            "bot":response["bot"]
+            "user_id": response['authed_user']["id"],
+            "access_token": response['authed_user']["access_token"],
+            "scope": response['authed_user']["scope"],
+            "team_id": response["team"]["id"],
         }
         print("Check", response)
         return Response(response_data)
