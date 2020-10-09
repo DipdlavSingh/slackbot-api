@@ -73,6 +73,22 @@ class Message(APIView):
         assert response["message"]["text"] == message
         return Response(status=status.HTTP_200_OK)
 
+class Auth(APIView):
+    def post(self, request):
+        code = request.data.get('code', None)
+        client = WebClient()
+        response = client.oauth_v2_access(
+            client_id=SLACK_CLIENT_ID,
+            client_secret=SLACK_CLIENT_SECRET,
+            code=code
+            )
+        channels = Client.conversations_list(types="public_channel")['channels']
+        response_obj = {
+            "code": response['authed_user']["access_token"],
+            "channels" : channels
+        }
+        return Response(response_obj)
+
 class Login(APIView):
     def get(self, request):
         code = request.query_params.get('code')
