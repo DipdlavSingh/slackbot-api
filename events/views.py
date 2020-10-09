@@ -68,7 +68,8 @@ class Message(APIView):
             as_user = True
         else:
             Client = WebClient(SLACK_BOT_USER_TOKEN)
-        response = Client.chat_postMessage(channel=channel, text=message, as_user=as_user)
+        # response = Client.chat_postMessage(channel=channel, text=message, as_user=as_user)
+        response = Client.chat_postMessage(channel=channel, text=message)
         assert response["message"]["text"] == message
         return Response(status=status.HTTP_200_OK)
 
