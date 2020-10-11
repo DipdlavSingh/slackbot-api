@@ -64,12 +64,15 @@ class Message(APIView):
         message = request.data.get('message', '')
         user_token = request.data.get('user_token', None)
         time_str = request.data.get('time', None)
-        as_user = False
-        if user_token:
-            Client = WebClient(user_token)
-            as_user = True
+        accept = request.data.get('accept', 'bot')
+        if not WebClient(user_token).api_call('auth.test', token=user_token):
+            return Response({'message':'auth_failed'}, status=status.HTTP_400_BAD_REQUEST)
+        token = ''
+        if accept == 'bot':
+            token = SLACK_BOT_USER_TOKEN
         else:
-            Client = WebClient(SLACK_BOT_USER_TOKEN)
+            token = user_token
+        Client = WebClient(token) 
         response = {}
         if time_str:
             dt = datetime.datetime.strptime(time_str, '%d-%m-%Y %H:%M:%S')
