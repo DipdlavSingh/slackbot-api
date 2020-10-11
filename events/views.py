@@ -86,7 +86,7 @@ class Message(APIView):
 class Auth(APIView):
     def post(self, request):
         code = request.data.get('code', None)
-        redirect_uri = request.data.get('redirect_uri', 'http://localhost:3000/main')
+        redirect_uri = request.data.get('redirect_uri', None)
         client = WebClient()
         response = client.oauth_v2_access(
             client_id=SLACK_CLIENT_ID,
