@@ -65,7 +65,7 @@ class Message(APIView):
         user_token = request.data.get('user_token', None)
         time_str = request.data.get('time', None)
         accept = request.data.get('accept', 'bot')
-        if not WebClient(user_token).api_call('auth.test', token=user_token):
+        if not WebClient(user_token).api_call('auth.test', token=user_token)['ok']:
             return Response({'message':'auth_failed'}, status=status.HTTP_400_BAD_REQUEST)
         token = ''
         if accept == 'bot':
