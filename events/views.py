@@ -111,11 +111,7 @@ class Message(APIView):
         if res['ok']:
             messages = res["scheduled_messages"]
             for message in messages:
-                message['post_at'] = \
-                    str(datetime. \
-                    datetime. \
-                    utcfromtimestamp(message['post_at']). \
-                    strftime('%d-%m-%Y %H:%M:%S') + datetime.timedelta(hours=5,minutes=30))
+                message['post_at'] = (datetime.datetime.utcfromtimestamp(message['post_at'])+ datetime.timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M:%S')
             return Response(messages)
 
 class Auth(APIView):
