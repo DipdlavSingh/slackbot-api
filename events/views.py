@@ -128,10 +128,18 @@ class Auth(APIView):
             )
         channels = Client.conversations_list(types="public_channel")['channels']
         res = WebClient(response['authed_user']["access_token"]).api_call('users.profile.get')
+        schd = Client.api_call('chat.scheduledMessages.list')
+        messages = []
+        if schd['ok']:
+            messages = schd["scheduled_messages"]
+            for message in messages:
+                message['name'] = list(filter(lambda x: x['id'] == message['channel_id'], channels))[0]['name']
+                message['post_at'] = (datetime.datetime.utcfromtimestamp(message['post_at'])+ datetime.timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M:%S')
         response_obj = {
             "code": response['authed_user']["access_token"],
             "channels": channels,
-            "user_info": res['profile']
+            "user_info": res['profile'],
+            "messages": messages
         }
         return Response(response_obj)
 
