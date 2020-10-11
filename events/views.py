@@ -95,11 +95,11 @@ class Auth(APIView):
             redirect_uri=redirect_uri
             )
         channels = Client.conversations_list(types="public_channel")['channels']
-        # res = WebClient(response['authed_user']["access_token"]).api_call('users.profile.get')
+        res = WebClient(response['authed_user']["access_token"]).api_call('users.profile.get')
         response_obj = {
             "code": response['authed_user']["access_token"],
             "channels": channels,
-            # "user_info": res['profile']
+            "user_info": res['profile']
         }
         return Response(response_obj)
 
