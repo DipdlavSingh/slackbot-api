@@ -49,9 +49,9 @@ class Events(APIView):
                 # Client.api_call(method='chat.postMessage',
                 #                 channel=channel,
                 #                 text=bot_text)
-                return Response(status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_200_OK, headers={"X-Slack-No-Retry": 1})
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK, headers={"X-Slack-No-Retry": 1})
 
 class Channels(APIView):
     def get(self, request):
