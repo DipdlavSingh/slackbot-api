@@ -1,5 +1,6 @@
 from os import stat
 from django.shortcuts import render
+import datetime
 
 # Create your views here.
 from rest_framework.views import APIView
@@ -62,25 +63,36 @@ class Message(APIView):
         channel = request.data.get('channel', 'general')
         message = request.data.get('message', '')
         user_token = request.data.get('user_token', None)
+        time_str = request.data.get('time', None)
         as_user = False
         if user_token:
             Client = WebClient(user_token)
             as_user = True
         else:
             Client = WebClient(SLACK_BOT_USER_TOKEN)
-        # response = Client.chat_postMessage(channel=channel, text=message, as_user=as_user)
-        response = Client.chat_postMessage(channel=channel, text=message)
-        assert response["message"]["text"] == message
+        response = {}
+        if time_str:
+            dt = datetime.datetime.strptime(time_str, '%d-%m-%Y %H:%M:%S')
+            dt = dt - datetime.timedelta(hours=5,minutes=30)
+            print(dt)
+            unix_time = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
+            response = Client.chat_scheduleMessage(channel=channel, text=message, post_at=unix_time)
+            print(response)
+        else:
+            response = Client.chat_postMessage(channel=channel, text=message)
+            assert response["message"]["text"] == message
         return Response(status=status.HTTP_200_OK)
 
 class Auth(APIView):
     def post(self, request):
         code = request.data.get('code', None)
+        redirect_uri = request.data.get('redirect_uri', 'http://localhost:3000/main')
         client = WebClient()
         response = client.oauth_v2_access(
             client_id=SLACK_CLIENT_ID,
             client_secret=SLACK_CLIENT_SECRET,
-            code=code
+            code=code,
+            redirect_uri=redirect_uri
             )
         channels = Client.conversations_list(types="public_channel")['channels']
         response_obj = {
