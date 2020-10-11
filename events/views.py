@@ -86,6 +86,34 @@ class Message(APIView):
             assert response["message"]["text"] == message
         return Response(status=status.HTTP_200_OK)
 
+    def delete(self, request):
+        user_token = request.data.get('user_token', None)
+        id = request.data.get('id',None)
+        channel_id = request.data.get('channel_id', None)
+        client = WebClient(user_token)
+        if not client.api_call('auth.test')['ok']:
+            return Response({'message':'auth_failed'}, status=status.HTTP_400_BAD_REQUEST)
+        res = Client.chat_deleteScheduledMessage(channel=channel_id,scheduled_message_id=id)
+        if res['ok']:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+    def get(self, request):
+        user_token = request.data.get('user_token', None)
+        client = WebClient(user_token)
+        if not client.api_call('auth.test')['ok']:
+            return Response({'message':'auth_failed'}, status=status.HTTP_400_BAD_REQUEST)
+        res = WebClient(SLACK_BOT_USER_TOKEN).api_call('chat.scheduledMessages.list')
+        print(res)
+        messages = []
+        if res['ok']:
+            messages = res["scheduled_messages"]
+            for message in messages:
+                message['post_at'] = str(datetime.datetime.utcfromtimestamp(message['post_at']).strftime('%d-%m-%Y %H:%M:%S'))
+            return Response(messages)
+
 class Auth(APIView):
     def post(self, request):
         code = request.data.get('code', None)
