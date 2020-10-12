@@ -1,4 +1,5 @@
 from os import stat
+from django.http import request
 from django.shortcuts import render
 import datetime
 
@@ -54,6 +55,16 @@ class Events(APIView):
         return Response(status=status.HTTP_200_OK, headers={"X-Slack-No-Retry": 1})
 
 class Channels(APIView):
+    def post(self, request):
+        name = request.data.get('name', None)
+        if not name:
+            return Response({"message":"no name provided"}, status = status.HTTP_400_BAD_REQUEST)
+        res = Client.conversations_create(name=name)
+        print(res)
+        if res['ok']:
+            return Response({"channels":Client.conversations_list(types="public_channel")['channels']}, status = status.HTTP_200_OK)
+        return Response({"message":"Some error"}, status = status.HTTP_400_BAD_REQUEST)
+
     def get(self, request):
         # print(Client.conversations_list(types="public_channel"))
         return Response(Client.conversations_list(types="public_channel")['channels'])
@@ -154,8 +165,8 @@ class Login(APIView):
         return Response(response_data)
 
 def getScheduledMessages():
-    channels = WebClient(SLACK_BOT_USER_TOKEN).conversations_list(types="public_channel")['channels']
-    schd = WebClient(SLACK_BOT_USER_TOKEN).api_call('chat.scheduledMessages.list')
+    channels = Client.conversations_list(types="public_channel")['channels']
+    schd = Client.api_call('chat.scheduledMessages.list')
     messages = []
     print(schd)
     if schd['ok']:
