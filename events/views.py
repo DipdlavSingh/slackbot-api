@@ -81,6 +81,8 @@ class Message(APIView):
             unix_time = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
             response = Client.chat_scheduleMessage(channel=channel, text=message, post_at=unix_time)
             print(response)
+            messages = getScheduledMessages()
+            return Response({"messages": messages}, status=status.HTTP_200_OK)
         else:
             response = Client.chat_postMessage(channel=channel, text=message)
             assert response["message"]["text"] == message
@@ -95,14 +97,7 @@ class Message(APIView):
             return Response({'message':'auth_failed'}, status=status.HTTP_400_BAD_REQUEST)
         res = Client.chat_deleteScheduledMessage(channel=channel_id,scheduled_message_id=id)
         if res['ok']:
-            messages = []
-            schd = Client.api_call('chat.scheduledMessages.list')
-            channels = Client.conversations_list(types="public_channel")['channels']
-            if schd['ok']:
-                messages = schd["scheduled_messages"]
-                for message in messages:
-                    message['name'] = list(filter(lambda x: x['id'] == message['channel_id'], channels))[0]['name']
-                    message['post_at'] = (datetime.datetime.utcfromtimestamp(message['post_at'])+ datetime.timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M:%S')
+            messages = getScheduledMessages()
             return Response({messages: messages}, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -114,14 +109,8 @@ class Message(APIView):
         if not client.api_call('auth.test')['ok']:
             return Response({'message':'auth_failed'}, status=status.HTTP_400_BAD_REQUEST)
         res = WebClient(SLACK_BOT_USER_TOKEN).api_call('chat.scheduledMessages.list')
-        messages = []
-        channels = Client.conversations_list(types="public_channel")['channels']
-        if res['ok']:
-            messages = res["scheduled_messages"]
-            for message in messages:
-                message['name'] = list(filter(lambda x: x['id'] == message['channel_id'], channels))[0]['name']
-                message['post_at'] = (datetime.datetime.utcfromtimestamp(message['post_at'])+ datetime.timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M:%S')
-            return Response(messages)
+        messages = getScheduledMessages()
+        return Response(messages)
 
 class Auth(APIView):
     def post(self, request):
@@ -136,13 +125,7 @@ class Auth(APIView):
             )
         channels = Client.conversations_list(types="public_channel")['channels']
         res = WebClient(response['authed_user']["access_token"]).api_call('users.profile.get')
-        schd = Client.api_call('chat.scheduledMessages.list')
-        messages = []
-        if schd['ok']:
-            messages = schd["scheduled_messages"]
-            for message in messages:
-                message['name'] = list(filter(lambda x: x['id'] == message['channel_id'], channels))[0]['name']
-                message['post_at'] = (datetime.datetime.utcfromtimestamp(message['post_at'])+ datetime.timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M:%S')
+        messages = getScheduledMessages()
         response_obj = {
             "code": response['authed_user']["access_token"],
             "channels": channels,
@@ -168,3 +151,14 @@ class Login(APIView):
         }
         print("Check", response)
         return Response(response_data)
+
+def getScheduledMessages():
+    channels = Client.conversations_list(types="public_channel")['channels']
+    schd = Client.api_call('chat.scheduledMessages.list')
+    messages = []
+    if schd['ok']:
+        messages = schd["scheduled_messages"]
+        for message in messages:
+            message['name'] = list(filter(lambda x: x['id'] == message['channel_id'], channels))[0]['name']
+            message['post_at'] = (datetime.datetime.utcfromtimestamp(message['post_at'])+ datetime.timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M:%S')
+    return messages
