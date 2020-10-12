@@ -109,7 +109,7 @@ class DelMessage(APIView):
         res = Client.chat_deleteScheduledMessage(channel=channel_id,scheduled_message_id=id)
         if res['ok']:
             messages = getScheduledMessages()
-            return Response({messages: messages}, status=status.HTTP_200_OK)
+            return Response({"messages": messages}, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
