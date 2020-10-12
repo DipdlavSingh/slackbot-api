@@ -95,13 +95,21 @@ class Message(APIView):
             return Response({'message':'auth_failed'}, status=status.HTTP_400_BAD_REQUEST)
         res = Client.chat_deleteScheduledMessage(channel=channel_id,scheduled_message_id=id)
         if res['ok']:
-            return Response(status=status.HTTP_200_OK)
+            messages = []
+            schd = Client.api_call('chat.scheduledMessages.list')
+            channels = Client.conversations_list(types="public_channel")['channels']
+            if schd['ok']:
+                messages = schd["scheduled_messages"]
+                for message in messages:
+                    message['name'] = list(filter(lambda x: x['id'] == message['channel_id'], channels))[0]['name']
+                    message['post_at'] = (datetime.datetime.utcfromtimestamp(message['post_at'])+ datetime.timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M:%S')
+            return Response({messages: messages}, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
     def get(self, request):
-        user_token = request.data.get('user_token', None)
+        user_token = request.query_params.get('user_token', None)
         client = WebClient(user_token)
         if not client.api_call('auth.test')['ok']:
             return Response({'message':'auth_failed'}, status=status.HTTP_400_BAD_REQUEST)
