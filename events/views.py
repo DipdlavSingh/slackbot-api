@@ -156,6 +156,7 @@ def getScheduledMessages():
     channels = Client.conversations_list(types="public_channel")['channels']
     schd = Client.api_call('chat.scheduledMessages.list')
     messages = []
+    print(schd)
     if schd['ok']:
         messages = schd["scheduled_messages"]
         for message in messages:
