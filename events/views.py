@@ -154,8 +154,8 @@ class Login(APIView):
         return Response(response_data)
 
 def getScheduledMessages():
-    channels = Client.conversations_list(types="public_channel")['channels']
-    schd = Client.api_call('chat.scheduledMessages.list')
+    channels = WebClient(SLACK_BOT_USER_TOKEN).conversations_list(types="public_channel")['channels']
+    schd = WebClient(SLACK_BOT_USER_TOKEN).api_call('chat.scheduledMessages.list')
     messages = []
     print(schd)
     if schd['ok']:
